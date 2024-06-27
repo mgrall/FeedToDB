@@ -25,7 +25,7 @@ composer install
 ```
 
 ### Extensions
-Ensure the pdo_sqlite extension is enabled in your php.ini file.
+Ensure the **pdo_sqlite** extension is enabled in your **php.ini** file.
 
 <br>
 
