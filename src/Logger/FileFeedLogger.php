@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
- * A simple logger compliant with the PSR-3 Logger Interface.
+ * A simple logger implementation compliant with the PSR-3 Logger Interface.
  */
 class FileFeedLogger implements LoggerInterface
 {
@@ -54,6 +54,6 @@ class FileFeedLogger implements LoggerInterface
     public function log($level, $message, array $context = []): void
     {
         $message = "[" . date('Y-m-d H:i:s') . "] " . strtoupper($level) . ": " . $message . " " . json_encode($context) . PHP_EOL;
-        file_put_contents(Config::get('logger')['path'], $message, FILE_APPEND);
+        file_put_contents(Config::get('logger', 'logger01')['path'], $message, FILE_APPEND);
     }
 }

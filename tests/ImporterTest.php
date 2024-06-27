@@ -1,100 +1,130 @@
 <?php
 
+use Mgrall\FeedToDb\Factory;
 use Mgrall\FeedToDb\Database\DatabaseInterface;
-use Mgrall\FeedToDb\Importer;
 use Mgrall\FeedToDb\Parser\ParserInterface;
-use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\TestCase;
 
-/**
- * Focus on verifying that the Importer class interacts with these dependencies correctly.
- * Ensure that methods are called ith the correct parameters.
- */
 class ImporterTest extends TestCase
 {
-    private $parserMock;
-    private $dbMock;
-    private $loggerMock;
-    private Importer $importer;
+    private $dbConfig;
+    private $dataSource;
+    private $loggerConfig;
+    private $mockParser;
+    private $mockDatabase;
+    private $mockLogger;
 
     /**
-     * The internal logic for the implementation of ParserInterface, DatabaseInterface and LoggerInterface is tested in their own test files.
      * @throws \PHPUnit\Framework\MockObject\Exception
      */
     protected function setUp(): void
     {
-        $this->parserMock = $this->createMock(ParserInterface::class);
-        $this->dbMock = $this->createMock(DatabaseInterface::class);
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->dbConfig = [
+            'type' => 'sqlite',
+            'dsn' => 'sqlite::memory:',
+            'schema' => [
+                'table_name' => 'test_table',
+                'fields' => ['id', 'name', 'value']
+            ]
+        ];
 
-        $this->importer = new Importer($this->parserMock, $this->dbMock, $this->loggerMock);
-    }
+        $this->dataSource = [
+            'type' => 'xml_feed',
+            'path' => 'path/to/feed.xml'
+        ];
 
-    public function testImportSuccess(): void
-    {
-        $schema = ['table_name' => 'test_table', 'columns' => ['col1', 'col2']];
-        $tableName = 'test_table';
-        $sourceFile = 'source_file.xml';
-        $parsedData = [['col1' => 'val1', 'col2' => 'val2'], ['col1' => 'val3', 'col2' => 'val4']];
+        $this->loggerConfig = [
+            'type' => 'FileFeedLogger'
+        ];
 
-        $this->dbMock->expects($this->once())
-            ->method('connect');
-
-        $this->dbMock->expects($this->once())
-            ->method('createStorage')
-            ->with($schema);
-
-        $this->parserMock->expects($this->once())
-            ->method('parse')
-            ->with($sourceFile)
-            ->willReturn($parsedData);
-
-        $this->dbMock->expects($this->exactly(2))
-            ->method('insert')
-            ->with(
-                $this->equalTo($tableName),
-                $this->logicalOr(
-                    $this->equalTo($parsedData[0]),
-                    $this->equalTo($parsedData[1])
-                )
-            );
-
-        $this->loggerMock->expects($this->never())
-            ->method('error');
-
-        $this->importer->importFeed($schema, $tableName, $sourceFile);
-    }
-
-    public function testImportThrowsException(): void
-    {
-        $schema = ['table_name' => 'test_table', 'columns' => ['col1', 'col2']];
-        $tableName = 'test_table';
-        $sourceFile = 'source_file.csv';
-
-        $this->dbMock->expects($this->once())
-            ->method('connect')
-            ->will($this->throwException(new Exception('Connection error')));
-
-        $this->loggerMock->expects($this->once())
-            ->method('error')
-            ->with('An error occurred', ['exception' => 'Connection error']);
-
-        $this->importer->importFeed($schema, $tableName, $sourceFile);
+        $this->mockParser = $this->createMock(ParserInterface::class);
+        $this->mockDatabase = $this->createMock(DatabaseInterface::class);
+        $this->mockLogger = $this->createMock(LoggerInterface::class);
     }
 
     /**
-     * @throws \PHPUnit\Framework\MockObject\Exception
+     * @throws Exception
      */
-    public function testSetLogger(): void
+    public function testConstructor()
     {
-        $newLoggerMock = $this->createMock(LoggerInterface::class);
+        $importer = new Factory($this->dbConfig, $this->dataSource, $this->loggerConfig);
 
-        $this->importer->setLogger($newLoggerMock);
+        $this->assertInstanceOf(Factory::class, $importer);
+    }
 
-        $reflection = new ReflectionClass($this->importer);
-        $property = $reflection->getProperty('logger');
-        $property->setAccessible(true);
+    /**
+     * @throws Exception
+     */
+    public function testImportFeed()
+    {
+        $data = [
+            (object)['id' => 1, 'name' => 'item1', 'value' => 'value1'],
+            (object)['id' => 2, 'name' => 'item2', 'value' => 'value2']
+        ];
 
-        $this->assertSame($newLoggerMock, $property->getValue($this->importer));
+        $this->mockDatabase->expects($this->once())
+            ->method('connect');
+
+        $this->mockDatabase->expects($this->once())
+            ->method('createStorage')
+            ->with($this->dbConfig['schema']);
+
+        // Parser normally only works with a real file, so we have to make it return data manually.
+        $this->mockParser->expects($this->once())
+            ->method('parse')
+            ->with($this->dataSource['path'])
+            ->willReturn($data);
+
+        $this->mockDatabase->expects($this->exactly(2))
+            ->method('insert')
+            ->with(
+                $this->callback(function($table) {
+                    return $table === $this->dbConfig['schema']['table_name'];
+                }),
+                $this->callback(function($entry) use ($data) {
+                    return in_array($entry, [(array)$data[0], (array)$data[1]]);
+                })
+            );
+
+        $importer = new Factory($this->dbConfig, $this->dataSource, $this->loggerConfig);
+        $importer->setLogger($this->mockLogger);
+
+        // Use reflection to set the private properties.
+        $reflection = new ReflectionClass($importer);
+        $parserProperty = $reflection->getProperty('parser');
+        $parserProperty->setAccessible(true);
+        $parserProperty->setValue($importer, $this->mockParser);
+
+        $databaseProperty = $reflection->getProperty('db');
+        $databaseProperty->setAccessible(true);
+        $databaseProperty->setValue($importer, $this->mockDatabase);
+
+        $importer->importFeed();
+    }
+
+    public function testImportFeedThrowsExceptionOnError()
+    {
+        $this->mockDatabase->expects($this->once())
+            ->method('connect')
+            ->will($this->throwException(new Exception('Connection error')));
+
+        $this->mockLogger->expects($this->once())
+            ->method('error')
+            ->with('An error occurred', ['exception' => 'Connection error']);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Connection error');
+
+        $importer = new Factory($this->dbConfig, $this->dataSource, $this->loggerConfig);
+        $importer->setLogger($this->mockLogger);
+
+        // Use reflection to set the private properties.
+        $reflection = new ReflectionClass($importer);
+        $databaseProperty = $reflection->getProperty('db');
+        $databaseProperty->setAccessible(true);
+        $databaseProperty->setValue($importer, $this->mockDatabase);
+
+        $importer->importFeed();
     }
 }

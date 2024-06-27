@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 /**
  * An interface that connects Parser, Database and Logger.
  */
-interface ImporterInterface extends LoggerAwareInterface
+interface FactoryInterface extends LoggerAwareInterface
 {
     public function __construct(ParserInterface $parser, DatabaseInterface $db, LoggerInterface $logger);
 

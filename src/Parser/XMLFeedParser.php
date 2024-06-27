@@ -22,6 +22,7 @@ class XMLFeedParser implements ParserInterface
     {
         $xml = simplexml_load_file($source);
 
+
         if ($xml === false) {
             throw new Exception('Could not read Data from XML');
         }

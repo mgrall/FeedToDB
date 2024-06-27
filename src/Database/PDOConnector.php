@@ -8,7 +8,7 @@ use PDO;
 use PDOException;
 
 /**
- * Connects with relational Databases whose drivers implement the PDO interface (SQLITE, MySQL, IBM...)
+ * Connects with relational Databases whose drivers implement the PDO interface (SQLITE, MySQL, IBM, etc.)
  */
 class PDOConnector implements DatabaseInterface
 {
@@ -28,7 +28,6 @@ class PDOConnector implements DatabaseInterface
 
     /**
      * Establishes a connection to the database using PDO.
-     *
      * @return void
      * @throws Exception if the attempt to connect to the requested database fails.
      */
@@ -41,17 +40,6 @@ class PDOConnector implements DatabaseInterface
         } catch (PDOException $e) {
             throw new Exception('Connection error: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Method to set the PDO object from outside for testing.
-     *
-     * @param Class::PDO $pdo A PDO-Mock.
-     * @return void
-     */
-    public function setPDO($pdo): void
-    {
-        $this->connection = $pdo;
     }
 
     /**
@@ -88,20 +76,22 @@ class PDOConnector implements DatabaseInterface
             throw new Exception("No database connection. Please connect first.");
         }
 
-        // Check for multidimensional arrays
+        // Check for multidimensional arrays.
         foreach ($data as $key => $value) {
             if (is_array($value)) {
-                // Throw an exception or handle this error as needed
                 throw new InvalidArgumentException(
                     "Multidimensional array detected at key '$key'. Expected a single-level associative array."
                 );
             }
         }
 
+        // Prepare for insertion into the SQL String.
         $columns = implode(',', array_keys($data));
         $values = implode(',', array_map(function ($val) {
             return ":$val";
         }, array_keys($data)));
+
+        // Construct the SQL String.
         $stmt = $this->connection->prepare("INSERT INTO $table ($columns) VALUES ($values)");
         foreach ($data as $key => $value) {
             $stmt->bindValue(":$key", $value);

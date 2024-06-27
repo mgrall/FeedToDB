@@ -13,7 +13,7 @@ class PDOConnectorTest extends TestCase
      */
     protected function setUp(): void
     {
-        // Initialize the connector with SQLite
+        // Initialize the connector with SQLite.
         $this->connector = new PDOConnector($this->dsn);
     }
 
@@ -27,7 +27,6 @@ class PDOConnectorTest extends TestCase
      */
     public function testConnect(): void
     {
-        // Test connecting to the SQLite database
         $this->connector->connect();
         $this->assertNotNull($this->connector);
     }
@@ -37,6 +36,7 @@ class PDOConnectorTest extends TestCase
      */
     public function testCreateStorage(): void
     {
+        // Create mock schema.
         $this->connector->connect();
         $schema = [
             'table_name' => 'test',
@@ -45,12 +45,13 @@ class PDOConnectorTest extends TestCase
 
         $this->connector->createStorage($schema);
 
+        // Retrieve private PDO connection.
         $reflection = new ReflectionClass($this->connector);
         $connectionProperty = $reflection->getProperty('connection');
         $connectionProperty->setAccessible(true);
         $pdo = $connectionProperty->getValue($this->connector);
 
-        // Check if the table exists
+        // Check if the table exists.
         $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='test'");
         $result = $stmt->fetchAll();
         $this->assertCount(1, $result);
@@ -61,6 +62,7 @@ class PDOConnectorTest extends TestCase
      */
     public function testInsertData(): void
     {
+        // Create mock table and data.
         $this->connector->connect();
         $schema = [
             'table_name' => 'test',
@@ -71,12 +73,13 @@ class PDOConnectorTest extends TestCase
         $data = ['id' => 1, 'name' => 'John Doe'];
         $this->connector->insert('test', $data);
 
+        // Retrieve private PDO connection.
         $reflection = new ReflectionClass($this->connector);
         $connectionProperty = $reflection->getProperty('connection');
         $connectionProperty->setAccessible(true);
         $pdo = $connectionProperty->getValue($this->connector);
 
-        // Verify the data is inserted correctly
+        // Verify the data is inserted correctly.
         $stmt = $pdo->query("SELECT * FROM test WHERE id = 1");
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $this->assertSame($data, $result);
