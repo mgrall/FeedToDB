@@ -37,6 +37,8 @@ php main.php
 This will start the process of reading the XML feed and inserting data into the SQLite database.<br>
 Keep in mind that I did not set a PRIMARY KEY for testing, so any subsequent runs will add more items to the database.
 
+setup.php will attempt to create the missing directories for the application environment (included in main.php).
+
 <br>
 
 ## Project Structure
