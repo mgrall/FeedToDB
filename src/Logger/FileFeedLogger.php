@@ -55,7 +55,7 @@ class FileFeedLogger implements LoggerInterface
     {
         $message = "[" . date('Y-m-d H:i:s') . "] " . strtoupper($level) . ": " . $message . " " . json_encode($context) . PHP_EOL;
         // Construct absolute path.
-        $path = realpath(dirname(__DIR__, 2) . Config::get('logger', 'logger01')['path']);
+        $path = Config::get('logger', 'logger01')['path'];
         file_put_contents($path, $message, FILE_APPEND);
     }
 }
