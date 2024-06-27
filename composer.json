@@ -1,0 +1,26 @@
+{
+    "name": "mgrall/feed-to-db",
+    "description": "Inserts data/feed.xml into a sqlite database",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Mgrall\\FeedToDb\\": "src/",
+            "Mgrall\\FeedToDb\\config\\": "config/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Marc Olaf Grall",
+            "email": "marcgrall.dev@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+      "ext-simplexml": "*",
+      "ext-pdo": "*",
+        "psr/log": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "11"
+    }
+}
