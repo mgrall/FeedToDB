@@ -56,7 +56,7 @@ class Factory implements FactoryInterface
             // Insert data
             foreach ($data as $entry) {
                 $this->db->insert($this->dbConfig['schema']['table_name'], (array)$entry);
-                echo "inserted: " . implode(",", (array)$entry) . "\n";
+                //echo "inserted: " . implode(",", (array)$entry) . "\n";
                 // $this->logger->info('Inserted ', [implode(",", (array)$entry) . PHP_EOL]);
             }
         } catch (Exception $e) {

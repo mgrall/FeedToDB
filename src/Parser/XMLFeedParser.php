@@ -20,7 +20,7 @@ class XMLFeedParser implements ParserInterface
      */
     public function parse(string $source): object|bool
     {
-        $xml = simplexml_load_file($source);
+        $xml = simplexml_load_file(realpath(dirname(__DIR__, 2) . $source));
 
 
         if ($xml === false) {

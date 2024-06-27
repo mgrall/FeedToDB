@@ -4,6 +4,9 @@ namespace Mgrall\FeedToDb\Parser;
 
 use Exception;
 
+/**
+ * An interface that facilitates parsing data sources into readable objects
+ */
 interface ParserInterface
 {
     /**

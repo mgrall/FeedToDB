@@ -37,13 +37,13 @@ class Config {
         'data_source' => [
             'feed.xml' => [
                 'type' => 'xml_feed',
-                'path' => './data/feed.xml',
+                'path' => '/data/feed.xml',
             ],
         ],
         'logger' => [
             'logger01' => [
                 'type' => 'FileFeedLogger',
-                'path' => __DIR__ . '/../storage/logs/app.log',
+                'path' => '/storage/logs/app.log',
             ],
         ],
     ];
