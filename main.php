@@ -22,7 +22,7 @@ try {
     // also I removed the PRIMARY KEY, so it will continue adding items to the catalog if it is run again.
     echo "Attempting to import data..." . PHP_EOL;
     $factory->importFeed();
-    echo "Success. Please note that I did not make entity_id the PRIMARY KEY so the program can be run multiple times for testing." . PHP_EOL;
+    echo "Success. Please note that I did not make entity_id the PRIMARY KEY, so the program can be run multiple times for testing." . PHP_EOL;
 } catch (Exception $e) {
     echo "There has been an error importing your feed: " . $e->getMessage();
 }
