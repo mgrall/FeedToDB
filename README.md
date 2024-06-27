@@ -1,6 +1,6 @@
 # FeedToDB Project
 
-**FeedToDB** is a PHP-based application designed to parse XML feeds and store their content into a SQLite database.
+**FeedToDB** is a PHP-based application designed to parse XML feeds and store their content in a SQLite database.
 
 **Assignment:** Create a command-line program that processes a local XML file (feed.xml) and pushes data of that XML to a DB of your choice.
 
@@ -34,7 +34,7 @@ Make sure to enable **extension=pdo_sqlite** in your php.ini
 ```bash
 php main.php
 ```
-This will start the process of reading the XML feed and inserting data into the SQLite database.<br>
+This will initiate the process of reading the XML feed and inserting data into the SQLite database.<br>
 Keep in mind that I did not set a PRIMARY KEY for testing, so any subsequent runs will add more items to the database.
 
 setup.php will attempt to create the missing directories for the application environment (included in main.php).
@@ -80,7 +80,7 @@ FeedToDB
 
 ## System Design
 The system is designed with modularity and extendability in mind.<br>
-It utilizes interfaces for the Database (**DatabaseInterface**), DataSource (**ParserInterface**) and Logger (**LoggerInterface**), allowing to easily extend the applications with further implementation.<br>
+It utilizes interfaces for databases (**DatabaseInterface**), data sources (**ParserInterface**) and loggers (**LoggerInterface**), allowing for easy extension of the applications with further implementations.<br>
 ![Screenshot 2024-06-27 054732](https://github.com/mgrall/FeedToDB/assets/23291884/895c2251-6b05-446f-b64e-14dcee28ea6d)
 
 
@@ -96,7 +96,7 @@ It utilizes interfaces for the Database (**DatabaseInterface**), DataSource (**P
 **FactoryInterface:** An interface that connects Parser, Database and Logger.<br>
 **Factory:** Uses config settings to create and control the desired implementations for DatabaseInterface, ParserInterface and LoggerInterface. Main.php uses this class to start the insertion process.
 
-**Main:** Can be replaced with a CLI of your choice. Only uses Factory and Config. 
+**Main:** Can be replaced with a CLI of your choice. Only uses Factory and Config (and setup). 
 
 <br>
 
