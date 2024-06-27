@@ -2,7 +2,7 @@
 
 **FeedToDB** is a PHP-based application designed to parse XML feeds and store their content in a SQLite database.
 
-**Assignment:** Create a command-line program that processes a local XML file (feed.xml) and pushes data of that XML to a DB of your choice.
+**Assignment:** Create a command-line program that processes a local XML file (feed.xml) and pushes data from that XML to a database of your choice.
 
 <br>
 
@@ -25,7 +25,7 @@ composer install
 ```
 
 ### Extensions
-Make sure to enable **extension=pdo_sqlite** in your php.ini
+Ensure the pdo_sqlite extension is enabled in your php.ini file.
 
 <br>
 
@@ -35,9 +35,9 @@ Make sure to enable **extension=pdo_sqlite** in your php.ini
 php main.php
 ```
 This will initiate the process of reading the XML feed and inserting data into the SQLite database.<br>
-Keep in mind that I did not set a PRIMARY KEY for testing, so any subsequent runs will add more items to the database.
+Keep in mind that I did not set a PRIMARY KEY for testing (normally entity_id), so any subsequent runs will add more items to the database.
 
-setup.php will attempt to create the missing directories for the application environment (included in main.php).
+setup.php attempts to create any missing directories needed for the application environment (included in main.php).
 
 <br>
 
@@ -85,7 +85,7 @@ It utilizes interfaces for databases (**DatabaseInterface**), data sources (**Pa
 
 
 **DatabaseInterface:** An interface that facilitates inserting data into databases.<br>
-**PDOConnector:** Connects with relational Databases whose drivers implement the PDO interface (SQLITE, MySQL, IBM, etc.)
+**PDOConnector:** Connects with relational Databases whose drivers implement the PDO interface (SQLite, MySQL, IBM, etc.)
 
 **ParserInterface:** An interface that facilitates parsing data sources into readable objects.<br>
 **XMLFeedParser:** Parses XML files, utilizing SimpleXML.
@@ -120,7 +120,7 @@ The foundation of the project was the implementation of interfaces for managing 
 ### The Factory
 Inspired by the factory method pattern, Factory.php was developed to instantiate DataSource and Database objects as specified in config.php. This includes setting parameters like data type (XML, JSON, etc.) and database connections (port, dbname, host). I also contemplated introducing a Factory Interface to allow customization in how data is imported or logged, supporting the extension of our factory mechanism by users who might want to inject additional logic.
 
-A interesting design decision was whether to create multiple factories, such as DataBaseFactory, DataSourceFactory, and LoggerFactory, or to consolidate these into a single Factory. I opted for a single Factory to keep the system simple and more manageable, avoiding unnecessary complexity in our project structure.
+An interesting design decision was whether to create multiple factories, such as DataBaseFactory, DataSourceFactory, and LoggerFactory, or to consolidate these into a single Factory. I opted for a single Factory to keep the system simple and more manageable, avoiding unnecessary complexity in our project structure.
 
 Another interesting question was whether to pass all required arguments in the constructor or to pass them through the import function when needed. In the end, I decided to focus on using the constructor since it made our main.php less prone to implementation failures. This approach essentially helped avoid the following scenario:
 ```php
