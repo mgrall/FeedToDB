@@ -39,6 +39,16 @@ Keep in mind that I did not set a PRIMARY KEY for testing (normally entity_id), 
 
 setup.php attempts to create any missing directories needed for the application environment (included in main.php).
 
+### What does main.php do?
+
+1. Runs **setup.php** to set up the missing directories **/storage/logs**, **/storage/database** and the **/storage/logs/app.log** file.
+
+2. Creates a **Config()** object to read our required project settings.
+
+3. Creates a new **Factory()** object using our Config settings for database, data source and logger.
+
+4. Initiates the import using the Factory.**importFeed()** function which writes any occurring errors to **/storage/logs/app.log**.
+
 <br>
 
 ## Project Structure
